@@ -158,8 +158,29 @@
   ///Completion processing of the current element
   if ([AXIS_SELF count] == 0)
   {
-    //If exist only text value of element - set it as element value.
-    [AXIS_PARENT setObject:_selfText forKey:elementName];
+    if (AXIS_PARENT[elementName])
+    {
+      if ([AXIS_PARENT[elementName] isKindOfClass:[NSMutableArray class]])
+      {
+        //If exist collection of preceding-sibling elements - add current element to collection.
+        [AXIS_PARENT[elementName] addObject:_selfText];
+      }
+      else
+      {
+        /*
+        If exist only one preceding-sibling element - create collection
+        and add both (preceding-sibling and current) elements to collection.
+        */
+        NSMutableArray *elementsArray = [NSMutableArray new];
+        [elementsArray addObjectsFromArray:@[AXIS_PRECEDING_SIBLING, _selfText]];
+        [AXIS_PARENT setObject:elementsArray forKey:elementName];
+      }
+    }
+    else
+    {
+      //If exist only text value of element - set it as element value.
+      [AXIS_PARENT setObject:_selfText forKey:elementName];
+    }
     _selfText = [NSMutableString new];
   }
   else
